@@ -1,5 +1,6 @@
 ﻿using Huddle.Context;
 using Huddle.Interfaces;
+using Huddle.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Huddle.Repositories
@@ -30,6 +31,14 @@ namespace Huddle.Repositories
         public async Task<User?> GetUserById(Guid id)
         {
             return await _context.Users.FindAsync(id);
+        }
+
+        // GET USER FRIEND LIST
+        public async Task<List<Friendship>?> GetUserFriendList(Guid id)
+        {
+            return await _context.Friendships
+                    .Where(f => f.UserOneId == id || f.UserTwoId == id)
+                    .ToListAsync();
         }
     }
 }

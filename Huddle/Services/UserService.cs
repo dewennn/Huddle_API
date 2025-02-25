@@ -1,4 +1,5 @@
 ﻿using Huddle.Interfaces;
+using Huddle.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Huddle.Services
@@ -20,10 +21,12 @@ namespace Huddle.Services
         }
 
         // ADD NEW USER
-        public async Task AddUser(User user)
+        public async Task<string?> AddUser(User user)
         {
-            user.Password = _passwordService.HashPassworad(user.Password);
+            user.PasswordHashed = _passwordService.HashPassworad(user.PasswordHashed);
             await _userRepository.AddUser(user);
+
+            return _jwtService.GenerateToken(user.Id, user.Email);
         }
 
         // VALIDATE USER
@@ -33,7 +36,7 @@ namespace Huddle.Services
 
             if (
                 user != null &&
-                _passwordService.VerifyPassword(user.Password, inputPassword)
+                _passwordService.VerifyPassword(user.PasswordHashed, inputPassword)
             ){
                 return _jwtService.GenerateToken(user.Id, user.Email);
             }
@@ -48,6 +51,18 @@ namespace Huddle.Services
             if (user != null)
             {
                 return user;
+            }
+
+            return null;
+        }
+
+        // GET FRIEND BY ID
+        public async Task<List<Friendship>?> GetUserFriendList(Guid id)
+        {
+            var friendships = await _userRepository.GetUserFriendList(id);
+            if (friendships != null)
+            {
+                return friendships;
             }
 
             return null;

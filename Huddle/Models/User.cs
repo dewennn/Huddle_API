@@ -1,32 +1,29 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-public class User
+namespace Huddle.Models
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public Guid Id { get; set; } = Guid.NewGuid(); // Generates GUID on creation
+    public partial class User
+    {
+        public User()
+        {
+            MessageSenders = new HashSet<Message>();
+            MessageUserTargets = new HashSet<Message>();
+        }
 
-    [Required]
-    [MaxLength(100)]
-    public string Email { get; set; } = null!;
+        public Guid Id { get; set; }
+        public string Email { get; set; } = null!;
+        public string Username { get; set; } = null!;
+        public string PasswordHashed { get; set; } = null!;
+        public string? ProfilePictureUrl { get; set; }
+        public DateTime DateCreated { get; set; }
+        public string? DateOfBirth { get; set; }
+        public string? DisplayName { get; set; }
+        public string? AboutMe { get; set; }
+        public string? UserStatus { get; set; }
+        public string? OnlineStatus { get; set; }
 
-    [Required]
-    [MaxLength(50)]
-    public string Username { get; set; } = null!;
-
-    [Required]
-    [MaxLength(255)]
-    public string Password { get; set; } = null!;
-
-    [MaxLength(255)]
-    public string? ProfilePictureUrl { get; set; }
-
-    public DateTime DateCreated { get; set; } = DateTime.UtcNow;
-
-    [MaxLength(255)]
-    public string? DateOfBirth { get; set; } // Keep as nvarchar(255)
-
-    [MaxLength(100)]
-    public string? DisplayName { get; set; }
+        public virtual ICollection<Message> MessageSenders { get; set; }
+        public virtual ICollection<Message> MessageUserTargets { get; set; }
+    }
 }

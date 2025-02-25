@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Huddle.Interfaces;
+using Huddle.Models;
 
 namespace Huddle.Controllers
 {
@@ -31,10 +32,9 @@ namespace Huddle.Controllers
 
         // REGISTER NEW USER
         [HttpPost("register")]
-        public async Task<ActionResult<User>> PostUser(User user)
+        public async Task<ActionResult<string?>> PostUser(User user)
         {
-            await _userService.AddUser(user);
-            return Ok();
+            return await _userService.AddUser(user);
         }
 
     }
