@@ -26,11 +26,12 @@ builder.Services.AddScoped<IUserService, UserService>();
 // Configure CORS policy
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowClientApp", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.SetIsOriginAllowed(origin => true)
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
@@ -63,7 +64,7 @@ builder.Services.AddScoped<PasswordService>();
 var app = builder.Build();
 
 // Apply CORS policy
-app.UseCors("AllowAll");
+app.UseCors("AllowClientApp");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

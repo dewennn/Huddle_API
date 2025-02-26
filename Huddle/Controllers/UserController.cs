@@ -9,10 +9,10 @@ using Microsoft.AspNetCore.Authorization;
 using Huddle.Interfaces;
 using System.Security.Claims;
 using Huddle.Models;
+using Huddle.Services;
 
 namespace Huddle.Controllers
 {
-    [Authorize]
     [Route("api/user")]
     [ApiController]
     public class UserController : ControllerBase
@@ -28,48 +28,31 @@ namespace Huddle.Controllers
         [HttpGet("me")]
         public async Task<ActionResult<User>> GetCurrentUser()
         {
-            var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var token = Request.Cookies["jwt"];
 
-            if (id == null) return Unauthorized("Invalid token.");
+            var userId = _userService.ValidateToken(token);
 
-            var user = await _userService.GetUserByID(new Guid(id));
-            if (user == null)
-            {
-                return NotFound();
-            }
+            if ( userId == null ) return Unauthorized();
+
+            var user = await _userService.GetUserByID(userId);
 
             return Ok(user);
         }
 
-        // api/user/me | GET USER DATA w JWT
+        // api/user/friends | GET USER FRIEND LIST w JWT
         [HttpGet("friends")]
-        public async Task<ActionResult<List<Friendship>?>> GetFriends()
+        public async Task<ActionResult<List<User>?>> GetFriends()
         {
-            var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var token = Request.Cookies["jwt"];
+            var userId = _userService.ValidateToken(token);
 
-            if (id == null) return Unauthorized("Invalid token.");
+            if (userId == null) return Unauthorized("Invalid token.");
 
-            var friendships = await _userService.GetUserFriendList(new Guid(id));
-            if (friendships == null)
-            {
-                return NotFound();
-            }
+            var friendships = await _userService.GetUserFriendList(userId);
+
+            if (friendships == null) return NotFound();
 
             return Ok(friendships);
         }
-
-        //// UPDATE USER DATA
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> PutUser(Guid id, User user)
-        //{
-
-        //}
-
-        //// DELETE USER
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteUser(Guid id)
-        //{
-
-        //}
     }
 }

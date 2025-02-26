@@ -32,9 +32,11 @@ namespace Huddle.Context
             // MESSAGE
             modelBuilder.Entity<Message>(entity =>
             {
-                entity.Property(e => e.MessageId).HasDefaultValueSql("(newid())");
+                entity.Property(e => e.MessageId)
+                    .HasDefaultValueSql("(newid())");
 
-                entity.Property(e => e.Content).HasMaxLength(255);
+                entity.Property(e => e.Content)
+                    .HasMaxLength(255);
 
                 entity.Property(e => e.DateCreated)
                     .HasColumnType("datetime")
@@ -60,9 +62,11 @@ namespace Huddle.Context
             // SERVER
             modelBuilder.Entity<Server>(entity =>
             {
-                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+                entity.Property(e => e.Id)
+                    .HasDefaultValueSql("(newid())");
 
-                entity.Property(e => e.ProfilePictureUrl).HasMaxLength(255);
+                entity.Property(e => e.ProfilePictureUrl)
+                    .HasMaxLength(255);
             });
 
             // USERS
@@ -71,29 +75,39 @@ namespace Huddle.Context
                 entity.HasIndex(e => e.Email, "UQ__Users__A9D10534F2F8D761")
                     .IsUnique();
 
-                entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+                entity.Property(e => e.Id)
+                    .HasDefaultValueSql("(newid())");
 
-                entity.Property(e => e.AboutMe).HasMaxLength(255);
+                entity.Property(e => e.AboutMe).
+                    HasMaxLength(255);
 
                 entity.Property(e => e.DateCreated)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getutcdate())");
 
-                entity.Property(e => e.DateOfBirth).HasMaxLength(255);
+                entity.Property(e => e.DateOfBirth)
+                    .HasMaxLength(255);
 
-                entity.Property(e => e.DisplayName).HasMaxLength(255);
+                entity.Property(e => e.DisplayName)
+                    .HasMaxLength(255);
 
-                entity.Property(e => e.Email).HasMaxLength(100);
+                entity.Property(e => e.Email)
+                    .HasMaxLength(100);
 
-                entity.Property(e => e.OnlineStatus).HasMaxLength(50);
+                entity.Property(e => e.OnlineStatus)
+                    .HasMaxLength(50);
 
-                entity.Property(e => e.PasswordHashed).HasMaxLength(255);
+                entity.Property(e => e.PasswordHashed)
+                    .HasMaxLength(255);
 
-                entity.Property(e => e.ProfilePictureUrl).HasMaxLength(255);
+                entity.Property(e => e.ProfilePictureUrl)
+                    .HasMaxLength(255);
 
-                entity.Property(e => e.UserStatus).HasMaxLength(50);
+                entity.Property(e => e.UserStatus)
+                    .HasMaxLength(50);
 
-                entity.Property(e => e.Username).HasMaxLength(50);
+                entity.Property(e => e.Username)
+                    .HasMaxLength(50);
             });
 
             // FRIENDSHIP TABLE

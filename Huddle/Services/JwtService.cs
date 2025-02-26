@@ -27,8 +27,7 @@ namespace Huddle.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Exp, new DateTimeOffset(expirationTime).ToUnixTimeSeconds().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
             // Create Secret Key
@@ -40,10 +39,44 @@ namespace Huddle.Services
                 issuer: jwtSettings["Issuer"],
                 audience: jwtSettings["Audience"],
                 claims: claims,
+                expires: expirationTime,
                 signingCredentials: creds
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        public (Guid UserId, string Email)? ValidateToken(string token)
+        {
+            var jwtSettings = _config.GetSection("JwtSettings");
+            var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            try
+            {
+                var claimsPrincipal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                }, out _);
+
+                var userId = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var email = claimsPrincipal.FindFirst(ClaimTypes.Email)?.Value;
+
+                if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(email))
+                    return null;
+
+                return (new Guid(userId), email);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
     }
 }

@@ -20,10 +20,22 @@ namespace Huddle.Services
             _passwordService = passwordService;
         }
 
+        // VALIDATE TOKEN
+        public Guid? ValidateToken(string? token)
+        {
+            if (string.IsNullOrEmpty(token)) return null;
+
+            var claims = _jwtService.ValidateToken(token); // Validate and extract claims
+
+            if (claims == null) return null;
+
+            return claims.Value.UserId;
+        }
+
         // ADD NEW USER
         public async Task<string?> AddUser(User user)
         {
-            user.PasswordHashed = _passwordService.HashPassworad(user.PasswordHashed);
+            user.PasswordHashed = _passwordService.HashPassword(user.PasswordHashed);
             await _userRepository.AddUser(user);
 
             return _jwtService.GenerateToken(user.Id, user.Email);
@@ -45,27 +57,32 @@ namespace Huddle.Services
         }
 
         // GET USER BY ID
-        public async Task<User?> GetUserByID(Guid id)
+        public async Task<User?> GetUserByID(Guid? id)
         {
             var user = await _userRepository.GetUserById(id);
-            if (user != null)
+
+            if (user == null)
             {
-                return user;
+                return null;
             }
 
-            return null;
+            return user;
         }
 
-        // GET FRIEND BY ID
-        public async Task<List<Friendship>?> GetUserFriendList(Guid id)
+        // GET USER FRIEND LIST
+        public async Task<List<User>?> GetUserFriendList(Guid? id)
         {
-            var friendships = await _userRepository.GetUserFriendList(id);
-            if (friendships != null)
+            var friendIds = await _userRepository.GetUserFriendIdList(id);
+
+            if (friendIds == null)
             {
-                return friendships;
+
+                return null;
             }
 
-            return null;
+            List<User> friends = await _userRepository.GetUserByIds(friendIds);
+
+            return friends;
         }
     }
 }

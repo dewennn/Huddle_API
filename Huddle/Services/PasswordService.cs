@@ -6,7 +6,7 @@ namespace Huddle.Services
     {
         private readonly PasswordHasher<object> _passwordHasher = new PasswordHasher<object>();
 
-        public string HashPassworad(string password)
+        public string HashPassword(string password)
         {
             return _passwordHasher.HashPassword(null, password);
         }

@@ -7,7 +7,8 @@ namespace Huddle.Interfaces
     {
         Task<string?> ValidateUserByEmailPass(string email, string password);
         Task<string?> AddUser(User user);
-        Task<User?> GetUserByID(Guid id);
-        Task<List<Friendship>?> GetUserFriendList(Guid id);
+        Task<User?> GetUserByID(Guid? id);
+        Task<List<User>?> GetUserFriendList(Guid? id);
+        Guid? ValidateToken(string? token);
     }
 }
