@@ -5,6 +5,13 @@ namespace Huddle.Models
 {
     public class Friendship
     {
+        public Friendship() { }
+        public Friendship(Guid id1, Guid id2)
+        {
+            this.UserOneId = id1;
+            this.UserTwoId = id2;
+        }
+
         [Key, Column(Order = 0)]
         public Guid UserOneId { get; set; }
 

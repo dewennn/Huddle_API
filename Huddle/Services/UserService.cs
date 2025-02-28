@@ -1,4 +1,5 @@
-﻿using Huddle.Interfaces;
+﻿using Huddle.DTOs;
+using Huddle.Interfaces;
 using Huddle.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,16 +32,6 @@ namespace Huddle.Services
 
             return claims.Value.UserId;
         }
-
-        // ADD NEW USER
-        public async Task<string?> AddUser(User user)
-        {
-            user.PasswordHashed = _passwordService.HashPassword(user.PasswordHashed);
-            await _userRepository.AddUser(user);
-
-            return _jwtService.GenerateToken(user.Id, user.Email);
-        }
-
         // VALIDATE USER
         public async Task<string?> ValidateUserByEmailPass(string email, string inputPassword)
         {
@@ -49,12 +40,14 @@ namespace Huddle.Services
             if (
                 user != null &&
                 _passwordService.VerifyPassword(user.PasswordHashed, inputPassword)
-            ){
+            )
+            {
                 return _jwtService.GenerateToken(user.Id, user.Email);
             }
 
             return null;
         }
+
 
         // GET USER BY ID
         public async Task<User?> GetUserByID(Guid? id)
@@ -68,9 +61,36 @@ namespace Huddle.Services
 
             return user;
         }
+        // GET USER SENT FRIEND REQUEST
+        public async Task<List<FriendListDTO>?> GetUserSentFriendRequest(Guid? id)
+        {
+            var friendIds = await _userRepository.GetUserSentFriendRequests(id);
 
+            if (friendIds == null)
+            {
+                return null;
+            }
+
+            List<FriendListDTO> friends = await _userRepository.GetFriendListDTOByIds(friendIds);
+
+            return friends;
+        }
+        // GET USER RECEIVED FRIEND REQUEST
+        public async Task<List<FriendListDTO>?> GetUserReceivedFriendRequest(Guid? id)
+        {
+            var friendIds = await _userRepository.GetUserReceivedFriendRequests(id);
+
+            if (friendIds == null)
+            {
+                return null;
+            }
+
+            List<FriendListDTO> friends = await _userRepository.GetFriendListDTOByIds(friendIds);
+
+            return friends;
+        }
         // GET USER FRIEND LIST
-        public async Task<List<User>?> GetUserFriendList(Guid? id)
+        public async Task<List<FriendListDTO>?> GetUserFriendList(Guid? id)
         {
             var friendIds = await _userRepository.GetUserFriendIdList(id);
 
@@ -80,9 +100,29 @@ namespace Huddle.Services
                 return null;
             }
 
-            List<User> friends = await _userRepository.GetUserByIds(friendIds);
+            List<FriendListDTO> friends = await _userRepository.GetFriendListDTOByIds(friendIds);
 
             return friends;
         }
+
+
+        // ADD NEW USER
+        public async Task<string?> AddUser(User user)
+        {
+            user.PasswordHashed = _passwordService.HashPassword(user.PasswordHashed);
+            await _userRepository.AddUser(user);
+
+            return _jwtService.GenerateToken(user.Id, user.Email);
+        }
+        // ADD NEW FRIENDSHIP REQUESTS
+        public async Task AddFriendRequestWithUsername(Guid userId, string targetUsername)
+        {
+            Guid? friendId = await _userRepository.GetUserIdByUsername(targetUsername);
+
+            if (friendId == null) throw new ArgumentException("User not found");
+
+            await _userRepository.AddFriendshipRequest(new FriendshipRequest(userId, friendId.Value));
+        }
+
     }
 }

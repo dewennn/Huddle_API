@@ -10,6 +10,7 @@ using Huddle.Interfaces;
 using System.Security.Claims;
 using Huddle.Models;
 using Huddle.Services;
+using Huddle.DTOs;
 
 namespace Huddle.Controllers
 {
@@ -24,14 +25,17 @@ namespace Huddle.Controllers
             _userService = userService;
         }
 
-        // api/user/me | GET USER DATA w JWT
+        private Guid? AuthenticateUser()
+        {
+            var token = Request.Cookies["jwt"];
+            return _userService.ValidateToken(token);
+        }
+
+        // api/user/me | GET USER DATA
         [HttpGet("me")]
         public async Task<ActionResult<User>> GetCurrentUser()
         {
-            var token = Request.Cookies["jwt"];
-
-            var userId = _userService.ValidateToken(token);
-
+            var userId = AuthenticateUser();
             if ( userId == null ) return Unauthorized();
 
             var user = await _userService.GetUserByID(userId);
@@ -39,13 +43,39 @@ namespace Huddle.Controllers
             return Ok(user);
         }
 
-        // api/user/friends | GET USER FRIEND LIST w JWT
-        [HttpGet("friends")]
-        public async Task<ActionResult<List<User>?>> GetFriends()
+        // api/user/friends | GET USER SENT FRIEND REQUEST
+        [HttpGet("sent_friend_requests")]
+        public async Task<ActionResult<List<FriendListDTO>?>> GetSentFriendRequests()
         {
-            var token = Request.Cookies["jwt"];
-            var userId = _userService.ValidateToken(token);
+            var userId = AuthenticateUser();
+            if (userId == null) return Unauthorized("Invalid token.");
 
+            var sentFriendRequest = await _userService.GetUserSentFriendRequest(userId);
+
+            if (sentFriendRequest == null) return NotFound();
+
+            return Ok(sentFriendRequest);
+        }
+
+        // api/user/friends | GET USER RECEIVED FRIEND REQUEST
+        [HttpGet("received_friend_requests")]
+        public async Task<ActionResult<List<FriendListDTO>?>> GetReceivedFriendRequests()
+        {
+            var userId = AuthenticateUser();
+            if (userId == null) return Unauthorized("Invalid token.");
+
+            var receivedFriendRequest = await _userService.GetUserReceivedFriendRequest(userId);
+
+            if (receivedFriendRequest == null) return NotFound();
+
+            return Ok(receivedFriendRequest);
+        }
+
+        // api/user/friends | GET USER FRIEND LIST
+        [HttpGet("friends")]
+        public async Task<ActionResult<List<FriendListDTO>?>> GetFriends()
+        {
+            var userId = AuthenticateUser();
             if (userId == null) return Unauthorized("Invalid token.");
 
             var friendships = await _userService.GetUserFriendList(userId);
@@ -53,6 +83,27 @@ namespace Huddle.Controllers
             if (friendships == null) return NotFound();
 
             return Ok(friendships);
+        }
+
+        // api/user/add_friend | POST, ADD NEW FRIENDSHIP
+        [HttpPost("send_friend_request")]
+        public async Task<ActionResult> SendFriendRequest([FromBody] Dictionary<string, string> request)
+        {
+            var userId = AuthenticateUser();
+            if (userId == null) return Unauthorized("Invalid token.");
+
+            string targetUsername = request["targetUsername"];
+
+            try
+            {
+                await _userService.AddFriendRequestWithUsername(userId.Value, targetUsername);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            return Ok();
         }
     }
 }

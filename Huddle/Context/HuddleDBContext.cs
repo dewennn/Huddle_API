@@ -12,10 +12,10 @@ namespace Huddle.Context
         public HuddleDBContext(DbContextOptions<HuddleDBContext> options) : base(options) { }
 
         // TABLES
-        public virtual DbSet<Message> Messages { get; set; } = null!;
         public virtual DbSet<Server> Servers { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
-        public virtual DbSet<Friendship> Friendships { get; set; } = null!; // Add Friendships table
+        public virtual DbSet<Friendship> Friendships { get; set; } = null!;
+        public virtual DbSet<FriendshipRequest> FriendshipRequests { get; set; } = null!;
 
         // CONNECT TO DB
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -29,35 +29,6 @@ namespace Huddle.Context
         // MODEL MAPPING
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // MESSAGE
-            modelBuilder.Entity<Message>(entity =>
-            {
-                entity.Property(e => e.MessageId)
-                    .HasDefaultValueSql("(newid())");
-
-                entity.Property(e => e.Content)
-                    .HasMaxLength(255);
-
-                entity.Property(e => e.DateCreated)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getutcdate())");
-
-                entity.HasOne(d => d.ChannelTarget)
-                    .WithMany(p => p.Messages)
-                    .HasForeignKey(d => d.ChannelTargetId)
-                    .HasConstraintName("FK_ChannelTargetId");
-
-                entity.HasOne(d => d.Sender)
-                    .WithMany(p => p.MessageSenders)
-                    .HasForeignKey(d => d.SenderId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_SenderId");
-
-                entity.HasOne(d => d.UserTarget)
-                    .WithMany(p => p.MessageUserTargets)
-                    .HasForeignKey(d => d.UserTargetId)
-                    .HasConstraintName("FK_UserTargetId");
-            });
 
             // SERVER
             modelBuilder.Entity<Server>(entity =>
@@ -113,7 +84,7 @@ namespace Huddle.Context
             // FRIENDSHIP TABLE
             modelBuilder.Entity<Friendship>(entity =>
             {
-                entity.HasKey(f => new { f.UserOneId, f.UserTwoId }); // Composite Primary Key
+                entity.HasKey(f => new { f.UserOneId, f.UserTwoId });
 
                 entity.HasOne(f => f.UserOne)
                     .WithMany()
@@ -127,8 +98,26 @@ namespace Huddle.Context
                     .OnDelete(DeleteBehavior.NoAction)
                     .HasConstraintName("FK_User_Two");
             });
+            modelBuilder.Entity<Friendship>().ToTable("Friends");
 
-            modelBuilder.Entity<Friendship>().ToTable("friends");
+            // FRIENDSHIP REQUESTS TABLE
+            modelBuilder.Entity<FriendshipRequest>(entity =>
+            {
+                entity.HasKey(f => new {f.SenderId, f.ReceiverId});
+
+                entity.HasOne(f => f.Sender)
+                    .WithMany()
+                    .HasForeignKey(f => f.SenderId)
+                    .OnDelete(DeleteBehavior.NoAction)
+                    .HasConstraintName("FK_User_One");
+
+                entity.HasOne(f => f.Receiver)
+                    .WithMany()
+                    .HasForeignKey(f => f.ReceiverId)
+                    .OnDelete(DeleteBehavior.NoAction)
+                    .HasConstraintName("FK_User_Two");
+            });
+            modelBuilder.Entity<FriendshipRequest>().ToTable("FriendRequests");
 
             OnModelCreatingPartial(modelBuilder);
         }
