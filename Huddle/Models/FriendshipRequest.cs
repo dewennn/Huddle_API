@@ -18,7 +18,6 @@ namespace Huddle.Models
         [Key, Column(Order = 1)]
         public Guid ReceiverId { get; set; }
 
-        // Navigation Properties
         [ForeignKey("SenderId")]
         public User Sender { get; set; } = null!;
 

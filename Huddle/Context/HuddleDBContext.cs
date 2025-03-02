@@ -119,6 +119,32 @@ namespace Huddle.Context
             });
             modelBuilder.Entity<FriendshipRequest>().ToTable("FriendRequests");
 
+            // PERSONAL MESSAGE TABLE
+            modelBuilder.Entity<PersonalMessages>(entity =>
+            {
+                entity.HasKey(pm => pm.MessageId);
+
+                entity.Property(pm => pm.DateCreated)
+                      .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.Property(pm => pm.MessageId)
+                      .HasDefaultValueSql("NEWID()");
+
+                entity.Property(pm => pm.Content)
+                      .HasMaxLength(255)
+                      .IsRequired();
+
+                entity.HasOne(pm => pm.Sender)
+                      .WithMany()
+                      .HasForeignKey(pm => pm.SenderId)
+                      .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasOne(pm => pm.Receiver)
+                      .WithMany()
+                      .HasForeignKey(pm => pm.ReceiverId)
+                      .OnDelete(DeleteBehavior.NoAction);
+            });
+
             OnModelCreatingPartial(modelBuilder);
         }
 
