@@ -20,7 +20,9 @@ namespace Huddle.Interfaces
         Task AddFriendshipRequest(FriendshipRequest newRequest);
         Task AddFriendship(Friendship friendship);
 
+
         // DELETE REQUESTS
         Task DeleteFriendship(Friendship friendship);
+        Task DeleteFriendshipRequest(FriendshipRequest friendshipRequest);
     }
 }

@@ -108,5 +108,11 @@ namespace Huddle.Repositories
             _context.Friendships.Remove(friendship);
             await _context.SaveChangesAsync();
         }
+        // DELETE FRIENDSHIP REQUEST
+        public async Task DeleteFriendshipRequest(FriendshipRequest friendshipRequest)
+        {
+            _context.FriendshipRequests.Remove(friendshipRequest);
+            await _context.SaveChangesAsync();
+        }
     }
 }

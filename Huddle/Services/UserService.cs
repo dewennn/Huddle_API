@@ -123,12 +123,22 @@ namespace Huddle.Services
 
             await _userRepository.AddFriendshipRequest(new FriendshipRequest(userId, friendId.Value));
         }
+        // ADD NEW FRIENDSHIP
+        public async Task AddFriendship(Guid userId, Guid friendId)
+        {
+            await _userRepository.AddFriendship(new Friendship(userId, friendId));
+        }
 
 
-        // DELETE NEW FRIENDSHIP
+        // DELETE FRIENDSHIP
         public async Task RemoveFriendship(Guid userId, Guid friendId)
         {
             await _userRepository.DeleteFriendship(new Friendship(userId, friendId));
+        }
+        // DELETE FRIENDSHIP REQUEST
+        public async Task RemoveFriendshipRequest(Guid senderId, Guid receiverId)
+        {
+            await _userRepository.DeleteFriendshipRequest(new FriendshipRequest(senderId, receiverId));
         }
 
     }

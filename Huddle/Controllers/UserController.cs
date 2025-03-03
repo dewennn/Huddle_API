@@ -85,7 +85,7 @@ namespace Huddle.Controllers
             return Ok(friendships);
         }
 
-        // api/user/add_friend | POST, ADD NEW FRIENDSHIP
+        // api/user/add_friend | POST, ADD NEW FRIENDSHIP REQUEST
         [HttpPost("send_friend_request")]
         public async Task<ActionResult> SendFriendRequest([FromBody] Dictionary<string, string> request)
         {
@@ -99,6 +99,66 @@ namespace Huddle.Controllers
                 await _userService.AddFriendRequestWithUsername(userId.Value, targetUsername);
             }
             catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            return Ok();
+        }
+        // api/user/accept_friend_request | POST, ADD NEW FRIENDSHIP
+        [HttpPost("accept_friend_request")]
+        public async Task<ActionResult> AcceptFriendRequest([FromBody] Dictionary<string, string> request)
+        {
+            var userId = AuthenticateUser();
+            if (userId == null) return Unauthorized("Invalid token.");
+
+            string friendId = request["friendId"];
+            string receiver = request["receiver"];
+
+            var senderId = userId.Value;
+            var receiverId = new Guid(friendId);
+            if (receiver == "1")
+            {
+                receiverId = userId.Value;
+                senderId = new Guid(friendId);
+            }
+
+            try
+            {
+                await _userService.RemoveFriendshipRequest(senderId, receiverId);
+                await _userService.AddFriendship(senderId, receiverId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            return Ok();
+        }
+
+        // api/user/reject_friend_request | DELETE, REMOVE FRIENDSHIP REQUEST
+        [HttpDelete("reject_friend_request")]
+        public async Task<ActionResult> RejectFriendRequest([FromBody] Dictionary<string, string> request)
+        {
+            var userId = AuthenticateUser();
+            if (userId == null) return Unauthorized("Invalid token.");
+
+            string friendId = request["friendId"];
+            string receiver = request["receiver"];
+
+            var senderId = userId.Value;
+            var receiverId = new Guid(friendId);
+            if (receiver == "1")
+            {
+                receiverId = userId.Value;
+                senderId = new Guid(friendId);
+            }
+
+            try
+            {
+                await _userService.RemoveFriendshipRequest(senderId, receiverId);
+            }
+            catch(Exception ex)
             {
                 return BadRequest(ex.Message);
             }
