@@ -19,5 +19,8 @@ namespace Huddle.Interfaces
         Task AddUser(User user);
         Task AddFriendshipRequest(FriendshipRequest newRequest);
         Task AddFriendship(Friendship friendship);
+
+        // DELETE REQUESTS
+        Task DeleteFriendship(Friendship friendship);
     }
 }

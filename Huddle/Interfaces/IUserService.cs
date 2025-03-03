@@ -19,5 +19,8 @@ namespace Huddle.Interfaces
         // POST SERVICE
         Task<string?> AddUser(User user);
         Task AddFriendRequestWithUsername(Guid userId, string targetUsername);
+
+        // DELETE SERVICE
+        Task RemoveFriendship(Guid userId, Guid friendId);
     }
 }

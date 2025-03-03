@@ -124,5 +124,12 @@ namespace Huddle.Services
             await _userRepository.AddFriendshipRequest(new FriendshipRequest(userId, friendId.Value));
         }
 
+
+        // DELETE NEW FRIENDSHIP
+        public async Task RemoveFriendship(Guid userId, Guid friendId)
+        {
+            await _userRepository.DeleteFriendship(new Friendship(userId, friendId));
+        }
+
     }
 }

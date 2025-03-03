@@ -105,5 +105,26 @@ namespace Huddle.Controllers
 
             return Ok();
         }
+
+        // api/user/remove_friend | DELETE, REMOVE FRIEND
+        [HttpDelete("remove_friend")]
+        public async Task<ActionResult> RemoveFriend([FromBody] Dictionary<string, string> request)
+        {
+            var userId = AuthenticateUser();
+            if (userId == null) return Unauthorized("Invalid token.");
+
+            string friendId = request["friendId"];
+
+            try
+            {
+                await _userService.RemoveFriendship(userId.Value, new Guid(friendId));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            return Ok();
+        }
     }
 }

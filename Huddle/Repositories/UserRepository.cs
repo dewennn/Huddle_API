@@ -67,6 +67,7 @@ namespace Huddle.Repositories
                     Username = u.Username,
                     DisplayName = u.DisplayName,
                     UserStatus = u.UserStatus,
+                    OnlineStatus = u.OnlineStatus,
                     ProfilePictureUrl = u.ProfilePictureUrl
                 })
                 .ToListAsync();
@@ -97,6 +98,14 @@ namespace Huddle.Repositories
         public async Task AddFriendship(Friendship friendship)
         {
             _context.Friendships.Add(friendship);
+            await _context.SaveChangesAsync();
+        }
+
+
+        // DELETE FRIENDSHIP
+        public async Task DeleteFriendship(Friendship friendship)
+        {
+            _context.Friendships.Remove(friendship);
             await _context.SaveChangesAsync();
         }
     }
