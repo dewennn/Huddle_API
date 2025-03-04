@@ -61,8 +61,18 @@ namespace Huddle.Services
 
             return user;
         }
+        // GET USER DTO
+        public async Task<UserDTO?> GetUserDTO(Guid? id)
+        {
+            var user = await _userRepository.GetUserDTO(id);
+
+            if (user == null) return null;
+
+            return user;
+
+        }
         // GET USER SENT FRIEND REQUEST
-        public async Task<List<FriendListDTO>?> GetUserSentFriendRequest(Guid? id)
+        public async Task<List<UserDTO>?> GetUserSentFriendRequest(Guid? id)
         {
             var friendIds = await _userRepository.GetUserSentFriendRequests(id);
 
@@ -71,12 +81,12 @@ namespace Huddle.Services
                 return null;
             }
 
-            List<FriendListDTO> friends = await _userRepository.GetFriendListDTOByIds(friendIds);
+            List<UserDTO> friends = await _userRepository.GetUserListDTOByIds(friendIds);
 
             return friends;
         }
         // GET USER RECEIVED FRIEND REQUEST
-        public async Task<List<FriendListDTO>?> GetUserReceivedFriendRequest(Guid? id)
+        public async Task<List<UserDTO>?> GetUserReceivedFriendRequest(Guid? id)
         {
             var friendIds = await _userRepository.GetUserReceivedFriendRequests(id);
 
@@ -85,12 +95,12 @@ namespace Huddle.Services
                 return null;
             }
 
-            List<FriendListDTO> friends = await _userRepository.GetFriendListDTOByIds(friendIds);
+            List<UserDTO> friends = await _userRepository.GetUserListDTOByIds(friendIds);
 
             return friends;
         }
         // GET USER FRIEND LIST
-        public async Task<List<FriendListDTO>?> GetUserFriendList(Guid? id)
+        public async Task<List<UserDTO>?> GetUserFriendList(Guid? id)
         {
             var friendIds = await _userRepository.GetUserFriendIdList(id);
 
@@ -100,7 +110,7 @@ namespace Huddle.Services
                 return null;
             }
 
-            List<FriendListDTO> friends = await _userRepository.GetFriendListDTOByIds(friendIds);
+            List<UserDTO> friends = await _userRepository.GetUserListDTOByIds(friendIds);
 
             return friends;
         }
@@ -133,7 +143,8 @@ namespace Huddle.Services
         // DELETE FRIENDSHIP
         public async Task RemoveFriendship(Guid userId, Guid friendId)
         {
-            await _userRepository.DeleteFriendship(new Friendship(userId, friendId));
+            Friendship target = await _userRepository.GetFriendship(userId, friendId);
+            await _userRepository.DeleteFriendship(target);
         }
         // DELETE FRIENDSHIP REQUEST
         public async Task RemoveFriendshipRequest(Guid senderId, Guid receiverId)

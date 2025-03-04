@@ -31,21 +31,33 @@ namespace Huddle.Controllers
             return _userService.ValidateToken(token);
         }
 
-        // api/user/me | GET USER DATA
+        // api/user/me | GET USER DTO
         [HttpGet("me")]
-        public async Task<ActionResult<User>> GetCurrentUser()
+        public async Task<ActionResult<UserDTO>> GetCurrentUser()
         {
             var userId = AuthenticateUser();
             if ( userId == null ) return Unauthorized();
 
-            var user = await _userService.GetUserByID(userId);
+            var user = await _userService.GetUserDTO(userId);
+
+            return Ok(user);
+        }
+
+        // api/user/me | GET USER DTO
+        [HttpGet("{id}")]
+        public async Task<ActionResult<UserDTO>> GetUserDTO(Guid id)
+        {
+            var userId = AuthenticateUser();
+            if (userId == null) return Unauthorized();
+
+            var user = await _userService.GetUserDTO(id);
 
             return Ok(user);
         }
 
         // api/user/friends | GET USER SENT FRIEND REQUEST
         [HttpGet("sent_friend_requests")]
-        public async Task<ActionResult<List<FriendListDTO>?>> GetSentFriendRequests()
+        public async Task<ActionResult<List<UserDTO>?>> GetSentFriendRequests()
         {
             var userId = AuthenticateUser();
             if (userId == null) return Unauthorized("Invalid token.");
@@ -59,7 +71,7 @@ namespace Huddle.Controllers
 
         // api/user/friends | GET USER RECEIVED FRIEND REQUEST
         [HttpGet("received_friend_requests")]
-        public async Task<ActionResult<List<FriendListDTO>?>> GetReceivedFriendRequests()
+        public async Task<ActionResult<List<UserDTO>?>> GetReceivedFriendRequests()
         {
             var userId = AuthenticateUser();
             if (userId == null) return Unauthorized("Invalid token.");
@@ -73,7 +85,7 @@ namespace Huddle.Controllers
 
         // api/user/friends | GET USER FRIEND LIST
         [HttpGet("friends")]
-        public async Task<ActionResult<List<FriendListDTO>?>> GetFriends()
+        public async Task<ActionResult<List<UserDTO>?>> GetFriends()
         {
             var userId = AuthenticateUser();
             if (userId == null) return Unauthorized("Invalid token.");

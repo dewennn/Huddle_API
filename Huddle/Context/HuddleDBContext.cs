@@ -16,6 +16,7 @@ namespace Huddle.Context
         public virtual DbSet<User> Users { get; set; } = null!;
         public virtual DbSet<Friendship> Friendships { get; set; } = null!;
         public virtual DbSet<FriendshipRequest> FriendshipRequests { get; set; } = null!;
+        public virtual DbSet<PersonalMessages> PersonalMessages { get; set; } = null!;
 
         // CONNECT TO DB
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

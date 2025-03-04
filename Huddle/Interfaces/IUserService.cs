@@ -12,9 +12,10 @@ namespace Huddle.Interfaces
 
         // GET SERVICE
         Task<User?> GetUserByID(Guid? id);
-        Task<List<FriendListDTO>?> GetUserSentFriendRequest(Guid? id);
-        Task<List<FriendListDTO>?> GetUserReceivedFriendRequest(Guid? id);
-        Task<List<FriendListDTO>?> GetUserFriendList(Guid? id);
+        Task<UserDTO?> GetUserDTO(Guid? id);
+        Task<List<UserDTO>?> GetUserSentFriendRequest(Guid? id);
+        Task<List<UserDTO>?> GetUserReceivedFriendRequest(Guid? id);
+        Task<List<UserDTO>?> GetUserFriendList(Guid? id);
 
         // POST SERVICE
         Task<string?> AddUser(User user);

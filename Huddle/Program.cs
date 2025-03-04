@@ -22,6 +22,8 @@ builder.Services.AddDbContext<HuddleDBContext>(options =>
 // Register repositories and services
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPersonalMessageRepository, PersonalMessageRepository>();
+builder.Services.AddScoped<IPersonalMessageService, PersonalMessageService>();
 
 // Configure CORS policy
 builder.Services.AddCors(options =>

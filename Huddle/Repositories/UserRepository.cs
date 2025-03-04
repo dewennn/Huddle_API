@@ -1,8 +1,10 @@
-﻿using Huddle.Context;
+﻿    using Huddle.Context;
 using Huddle.DTOs;
 using Huddle.Interfaces;
 using Huddle.Models;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Packaging.Signing;
+using NuGet.Versioning;
 
 namespace Huddle.Repositories
 {
@@ -26,6 +28,25 @@ namespace Huddle.Repositories
             if (id == null) return null;
 
             return await _context.Users.FindAsync(id);
+        }
+        // GET USER DTO
+        public async Task<UserDTO?> GetUserDTO(Guid? id)
+        {
+            if (id == null) return null;
+            return await _context.Users
+                .Where(u => u.Id == id)
+                .Select(u => new UserDTO
+                {
+                    Id = u.Id,
+                    Username = u.Username,
+                    DisplayName = u.DisplayName,
+                    UserStatus = u.UserStatus,
+                    OnlineStatus = u.OnlineStatus,
+                    ProfilePictureUrl = u.ProfilePictureUrl,
+                    DateCreated = u.DateCreated,
+                    AboutMe = u.AboutMe
+                })
+                .FirstOrDefaultAsync();
         }
         // GET USER SENT FRIEND REQUEST - ID LIST
         public async Task<List<Guid>?> GetUserSentFriendRequests(Guid? id)
@@ -58,17 +79,19 @@ namespace Huddle.Repositories
                     .ToListAsync();
         }
         // GET USER FRIENDs DTO WITH IDs
-        public async Task<List<FriendListDTO>> GetFriendListDTOByIds(List<Guid> ids)
+        public async Task<List<UserDTO>> GetUserListDTOByIds(List<Guid> ids)
         {
             return await _context.Users
                 .Where(u => ids.Contains(u.Id))
-                .Select(u => new FriendListDTO { 
+                .Select(u => new UserDTO { 
                     Id = u.Id,
                     Username = u.Username,
                     DisplayName = u.DisplayName,
                     UserStatus = u.UserStatus,
                     OnlineStatus = u.OnlineStatus,
-                    ProfilePictureUrl = u.ProfilePictureUrl
+                    ProfilePictureUrl = u.ProfilePictureUrl,
+                    DateCreated = u.DateCreated,
+                    AboutMe = u.AboutMe
                 })
                 .ToListAsync();
         }
@@ -78,6 +101,15 @@ namespace Huddle.Repositories
             return await _context.Users
                 .Where (u => u.Username == username)
                 .Select(u => (Guid?)u.Id)
+                .FirstOrDefaultAsync();
+        }
+        // GET FRIENDSHIP
+        public async Task<Friendship?> GetFriendship(Guid userOne, Guid userTwo)
+        {
+            return await _context.Friendships
+                .Where(f =>
+                    (f.UserOneId == userOne && f.UserTwoId == userTwo) ||
+                    (f.UserOneId == userTwo && f.UserTwoId == userOne))
                 .FirstOrDefaultAsync();
         }
 
